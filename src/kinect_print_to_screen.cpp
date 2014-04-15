@@ -6,7 +6,7 @@
 #include <pcl/conversions.h>
 #include <pcl/PCLPointCloud2.h>
 #include <cstdio>
-
+#include <tf/transform_broadcaster.h>
 #include <pcl_conversions/pcl_conversions.h>
 
 void chatterCallback(const sensor_msgs::PointCloud2::ConstPtr msg)
@@ -17,17 +17,35 @@ void chatterCallback(const sensor_msgs::PointCloud2::ConstPtr msg)
     pcl::PCLPointCloud2 pcl_pc2;
     //pcl_conversions::toPCL((sensor_msgs::PointCloud2&)msg, pcl_pc2);
     pcl_conversions::toPCL(*msg, pcl_pc2);
-     //Actually convert the PointCloud2 message into a type we can reason about
+    //Actually convert the PointCloud2 message into a type we can reason about
     pcl::PointCloud < pcl::PointXYZ > pcl_cloud;
     pcl::fromPCLPointCloud2(pcl_pc2, pcl_cloud);
-   
+    
     pcl::PointCloud < pcl::PointXYZ >::iterator myIterator;
+    float minZ = 9001;
+    float tempX = 0;
+    float tempY = 0;
     for(myIterator = pcl_cloud.begin();  
         myIterator != pcl_cloud.end();
         myIterator++)
     {
-        std::cout<<*myIterator<<" ";
+        std::cout<<*myIterator<<" "<<std::endl;
+	if((myIterator->z < minZ) && (myIterator->z > 0) ){
+	   minZ = myIterator->z;
+	   tempX = myIterator->x;
+	   tempY = myIterator->y;	
+	}
+        std::cout<<minZ<<"this is the smallest number "<< std::endl;
     }
+
+
+	
+    static tf::TransformBroadcaster br;
+    tf::Transform transform;
+    transform.setOrigin( tf::Vector3(tempX, tempY, minZ) );
+    transform.setRotation(tf::Quaternion(0, 0, 1));
+    br.sendTransform(tf::StampedTransform(transform, ros::Time::now(),
+                                        "/nav_kinect_depth_optical_frame","/dest" ));
 
 
   }
@@ -42,8 +60,8 @@ int main(int argc, char **argv)
 {
   ros::init(argc, argv, "listener");
   ros::NodeHandle n;
-  //ros::Subscriber sub = n.subscribe("/camera/depth/points", 1000, chatterCallback);
-  ros::Subscriber sub = n.subscribe("/nav_kinect/depth/points", 1000, chatterCallback);
+  ros::Subscriber sub = n.subscribe("/camera/depth/points", 1000, chatterCallback);
+ //ros::Subscriber sub = n.subscribe("/nav_kinect/depth/points", 1000, chatterCallback);
   ros::spin();
   return 0;
 }

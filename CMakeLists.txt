@@ -133,6 +133,9 @@ add_executable(kinect_print_to_screen src/kinect_print_to_screen.cpp)
 target_link_libraries(kinect_print_to_screen ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 add_dependencies(kinect_print_to_screen lab2_generate_messages_cpp)
 
+add_executable(kinect_listener src/kinect_listener.cpp)
+target_link_libraries(kinect_listener ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+
 #############
 ## Install ##
 #############
