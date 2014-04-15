@@ -1,6 +1,5 @@
 #include <ros/ros.h>
 #include <tf/transform_listener.h>
-#include <turtlesim/Spawn.h>
 #include <geometry_msgs/Twist.h>
 
 int main(int argc, char** argv){
@@ -30,6 +29,11 @@ int main(int argc, char** argv){
     vel_msg.linear.x = 0.2 * sqrt(pow(transform.getOrigin().x(), 2) +
                                   pow(transform.getOrigin().y(), 2));
 
+    if(transform.getOrigin().z() < .5){
+      vel_msg.linear.x =0;
+
+    }
+ 
     robot_vel.publish(vel_msg);
 
     rate.sleep();

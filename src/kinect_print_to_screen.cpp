@@ -29,24 +29,22 @@ void chatterCallback(const sensor_msgs::PointCloud2::ConstPtr msg)
         myIterator != pcl_cloud.end();
         myIterator++)
     {
-        std::cout<<*myIterator<<" "<<std::endl;
-	if((myIterator->z < minZ) && (myIterator->z > 0) ){
-	   minZ = myIterator->z;
-	   tempX = myIterator->x;
-	   tempY = myIterator->y;	
-	}
-        std::cout<<minZ<<"this is the smallest number "<< std::endl;
+     // std::cout<<*myIterator<<" "<<std::endl;
+      	if((myIterator->z < minZ) && (myIterator->z > 0) ){
+	         minZ = myIterator->z;
+	         tempX = myIterator->x;
+	         tempY = myIterator->y;	
+      	}
     }
-
-
 	
+    std::cout<<minZ<<"  this is the smallest number "<< std::endl;
+
     static tf::TransformBroadcaster br;
     tf::Transform transform;
     transform.setOrigin( tf::Vector3(tempX, tempY, minZ) );
     transform.setRotation(tf::Quaternion(0, 0, 1));
     br.sendTransform(tf::StampedTransform(transform, ros::Time::now(),
-                                        "/nav_kinect_depth_optical_frame","/dest" ));
-
+                                        "/nav_kinect_depth_optical_frame","/dest"));
 
   }
   catch (pcl::PCLException& ex)
@@ -60,8 +58,8 @@ int main(int argc, char **argv)
 {
   ros::init(argc, argv, "listener");
   ros::NodeHandle n;
-  ros::Subscriber sub = n.subscribe("/camera/depth/points", 1000, chatterCallback);
- //ros::Subscriber sub = n.subscribe("/nav_kinect/depth/points", 1000, chatterCallback);
+// ros::Subscriber sub = n.subscribe("/camera/depth/points", 1000, chatterCallback);
+  ros::Subscriber sub = n.subscribe("/nav_kinect/depth/points", 1000, chatterCallback);
   ros::spin();
   return 0;
 }
